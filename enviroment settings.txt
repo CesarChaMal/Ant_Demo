@@ -1,0 +1,14 @@
+variables de entorno
+
+set ANT_HOME = C:\apache-ant-1.9.2
+
+JAVA_HOME
+
+set C:\Progra~2\Java\jdk1.7.0_45
+
+
+add to the path
+
+PATH
+
+;%ANT_HOME%\bin;%JAVA_HOME%\bin

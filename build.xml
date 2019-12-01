@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<project name="Ant-Test" default="main" basedir=".">
+	<!-- Sets variables which can later be used. -->
+	<!-- The value of a property is accessed via ${} -->
+	<property name="src.dir" location="src" />
+	<property name="build.dir" location="bin/classes" />
+	<property name="dist.dir" location="dist" />
+	<property name="docs.dir" location="docs" />
+	<property name="web.dir" value="WebContent" />
+	<property file="build.properties"/>
+
+	<path id="master-classpath">
+		<fileset dir="${web.dir}/WEB-INF/lib">
+			<include name="*.jar" />
+		</fileset>
+		<pathelement path="${build.dir}" />
+	</path>
+
+	<!-- Deletes the existing build, docs and dist directory-->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${docs.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<!-- Creates the  build, docs and dist directory-->
+	<target name="makedir">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<!-- Compiles the java code (including the usage of library for JUnit -->
+	<target name="compile" depends="clean, makedir">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="master-classpath" />
+	</target>
+
+	<!-- Creates Javadoc -->
+	<target name="docs" depends="compile">
+		<javadoc packagenames="src" sourcepath="${src.dir}" destdir="${docs.dir}">
+			<!-- Define which files / directory should get included, we include all -->
+			<fileset dir="${src.dir}">
+				<include name="**" />
+			</fileset>
+		</javadoc>
+	</target>
+
+	<!--Creates the deployable jar file  -->
+	<target name="jar" depends="compile">
+		<jar destfile="${dist.dir}\de.vogella.build.test.ant.jar" basedir="${build.dir}"
+			includes="math/**" excludes="**/Main.class">
+			<manifest>
+				<attribute name="Main-Class" value="test.Main" />
+			</manifest>
+		</jar>
+	</target>
+
+	<!--Creates the deployable war file  -->
+	<target name="war" depends="compile">
+		<war destfile="${dist.dir}\de.vogella.build.test.ant.war" webxml="${web.dir}/WEB-INF/web.xml">
+			<!-- 
+			<fileset dir="${web.dir}">
+				<include name="**/*.*"/>
+			</fileset>
+			-->
+
+			<fileset dir="${web.dir}">
+				<include name="**/*.jsp" />
+				<include name="**/*.html" />
+				<include name="**/*.css" />
+				<include name="**/*.gif" />
+				<include name="**/*.jpg" />
+				<include name="**/*.png" />
+				<include name="**/*.js" />
+			</fileset>
+
+			<lib dir="${web.dir}/WEB-INF/lib/">
+				<include name="**/*.jar" />
+				<exclude name="wsdl4j.jar" />
+			</lib>
+
+			<classes dir="${build.dir}" />
+		</war>
+		<copy todir="${deploy.path}" preservelastmodified="true" overwrite="true">
+			<fileset dir="${dist.dir}">
+				<include name="*.war" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="main" depends="compile, jar, war, docs">
+		<echo>Apache Ant version is ${ant.version} - You are at ${sitename} </echo>
+		<description>Main target</description>
+	</target>
+
+</project>
